@@ -1,0 +1,478 @@
+{
+  "id": "LisBausteinVorg1",
+  "name": "Baustein – Vorgang anlegen",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Baustein: Vorgang anlegen\nWird von anderen Workflows aufgerufen (KI-Rezeption, Notfall, später WhatsApp oder Telefon).\n\n1. **Prüfen**: Pflichtangaben und Geburtsdatum. Fehlt etwas, geht ein Hinweis an die KI zurück.\n2. **Speichern** in der Tabelle *Vorgaenge*.\n3. **Team-Mail** ohne Gesundheitsdaten, nur Vorgangsnummer und Anliegen.\n\nE-Mail-Adressen im Knoten **Einstellungen** eintragen.",
+        "height": 250,
+        "width": 620,
+        "color": 6
+      },
+      "id": "13c1bbe8-68a4-4749-9700-fe9ca6b4ac7e",
+      "name": "Hinweis Baustein",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "anliegen",
+              "type": "string"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "geburtsdatum",
+              "type": "string"
+            },
+            {
+              "name": "telefon",
+              "type": "string"
+            },
+            {
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "name": "zusammenfassung",
+              "type": "string"
+            },
+            {
+              "name": "dringend",
+              "type": "boolean"
+            },
+            {
+              "name": "sessionId",
+              "type": "string"
+            },
+            {
+              "name": "kanal",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "5026e063-cc19-43bc-a84e-2a4ac10312df",
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "143ff565-05c5-4bda-a150-f54389b10269",
+              "name": "team_email",
+              "value": "praxis@example.com",
+              "type": "string"
+            },
+            {
+              "id": "494fee65-ca6c-478b-969a-871698c08fe9",
+              "name": "absender_email",
+              "value": "online-rezeption@example.com",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "7f2107cd-ef9b-42f0-ba90-1c00fecd107f",
+      "name": "Einstellungen",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prüft die Angaben, bevor ein Vorgang angelegt wird.\n// Fehler gehen als Text an die KI zurück, damit sie gezielt nachfragen kann.\nconst ANLIEGEN = ['Rezept', 'Termin', 'Überweisung', 'Krankschreibung', 'Befund', 'Frage', 'Notfall'];\nconst input = $input.item.json;\nconst text = (value) => (value === null || value === undefined ? '' : String(value).trim());\n\nfunction normalizeDate(value) {\n  const match = value.match(/^(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})$/);\n  if (!match) return '';\n  const [day, month, year] = match.slice(1).map(Number);\n  const date = new Date(Date.UTC(year, month - 1, day));\n  const valid =\n    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day &&\n    year >= 1900 && date <= new Date();\n  return valid ? String(day).padStart(2, '0') + '.' + String(month).padStart(2, '0') + '.' + year : '';\n}\n\nconst anliegen = ANLIEGEN.find((a) => a.toLowerCase() === text(input.anliegen).toLowerCase()) ?? '';\nconst name = text(input.name);\nconst telefon = text(input.telefon);\nconst geburtsdatum = normalizeDate(text(input.geburtsdatum));\n\nconst fehler = [];\nif (!anliegen) fehler.push('Anliegen muss eines davon sein: ' + ANLIEGEN.slice(0, 6).join(', '));\nif (anliegen !== 'Notfall') {\n  if (name.split(/\\s+/).filter(Boolean).length < 2) fehler.push('vollständiger Name (Vor- und Nachname)');\n  if (!geburtsdatum) fehler.push('gültiges Geburtsdatum im Format TT.MM.JJJJ');\n  if (telefon.replace(/\\D/g, '').length < 6) fehler.push('gültige Telefonnummer');\n}\nif (fehler.length > 0) {\n  return { json: { ok: false, fehler: 'Vorgang nicht angelegt. Bitte nachfragen: ' + fehler.join('; ') + '.' } };\n}\n\nconst heute = $now.toFormat('yyyyMMdd'); // Datum in der Zeitzone des Workflows (Europe/Berlin)\nconst zufall = Math.random().toString(36).slice(2, 6).toUpperCase().padEnd(4, 'X');\n\nreturn {\n  json: {\n    ok: true,\n    vorgangsnummer: 'V-' + heute + '-' + zufall,\n    anliegen,\n    status: 'neu',\n    dringend: input.dringend === true || input.dringend === 'true' || anliegen === 'Notfall',\n    name,\n    geburtsdatum,\n    telefon,\n    details: text(input.details).slice(0, 2000),\n    zusammenfassung: text(input.zusammenfassung).slice(0, 500),\n    sessionId: text(input.sessionId),\n    kanal: text(input.kanal) || 'chat',\n  },\n};"
+      },
+      "id": "a849d4f0-6b16-47be-9024-c70c6f9eb3f7",
+      "name": "Prüfen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9335aee2-a89f-4bdb-9f83-47cb076b150f",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7bd4fd78-bb88-44ae-b7cf-5b7fb1e626b5",
+      "name": "Angaben gültig?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Vorgaenge"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "vorgangsnummer": "={{ $json.vorgangsnummer }}",
+            "anliegen": "={{ $json.anliegen }}",
+            "status": "={{ $json.status }}",
+            "dringend": "={{ $json.dringend }}",
+            "name": "={{ $json.name }}",
+            "geburtsdatum": "={{ $json.geburtsdatum }}",
+            "telefon": "={{ $json.telefon }}",
+            "details": "={{ $json.details }}",
+            "zusammenfassung": "={{ $json.zusammenfassung }}",
+            "sessionId": "={{ $json.sessionId }}",
+            "kanal": "={{ $json.kanal }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "vorgangsnummer",
+              "displayName": "vorgangsnummer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "anliegen",
+              "displayName": "anliegen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "dringend",
+              "displayName": "dringend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "geburtsdatum",
+              "displayName": "geburtsdatum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "telefon",
+              "displayName": "telefon",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "zusammenfassung",
+              "displayName": "zusammenfassung",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "kanal",
+              "displayName": "kanal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "cbbdf710-8209-4d09-a39c-00a8e6baad23",
+      "name": "Vorgang speichern",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Einstellungen').first().json.absender_email }}",
+        "toEmail": "={{ $('Einstellungen').first().json.team_email }}",
+        "subject": "={{ $('Prüfen').item.json.dringend ? '[DRINGEND] ' : '' }}Neuer Vorgang {{ $('Prüfen').item.json.vorgangsnummer }}: {{ $('Prüfen').item.json.anliegen }}",
+        "emailFormat": "text",
+        "text": "=Neuer Vorgang aus der Online-Rezeption.\n\nVorgangsnummer: {{ $('Prüfen').item.json.vorgangsnummer }}\nAnliegen: {{ $('Prüfen').item.json.anliegen }}\nDringend: {{ $('Prüfen').item.json.dringend ? 'ja' : 'nein' }}\n\nDie Angaben stehen in n8n unter Overview → Data tables → Vorgaenge.\nAus Datenschutzgründen enthält diese E-Mail keine Patientendaten.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "b9b87e89-f537-485e-abce-7b37d7424d89",
+      "name": "Team benachrichtigen",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        -100
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "67033141-b662-46ef-a3b4-e895d33569bb",
+              "name": "ok",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "3b48cea5-337e-4a5b-90d0-7c9d7180c6f2",
+              "name": "vorgangsnummer",
+              "value": "={{ $('Prüfen').item.json.vorgangsnummer }}",
+              "type": "string"
+            },
+            {
+              "id": "d76729e6-e80a-4670-a763-98c782cf6c12",
+              "name": "nachricht",
+              "value": "=Vorgang angelegt. Vorgangsnummer: {{ $('Prüfen').item.json.vorgangsnummer }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "0ce1aa2f-08d1-4c67-843b-5470550e953b",
+      "name": "Ergebnis",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1340,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3e67992c-ef28-45be-9677-439e0ecbc705",
+              "name": "ok",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "1a932ed2-4348-41c3-83e5-efffa34096b6",
+              "name": "fehler",
+              "value": "={{ $json.fehler }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "034694b0-e7e8-4be6-b819-91f6bc4c763d",
+      "name": "Fehler zurückgeben",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        900,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Einstellungen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Einstellungen": {
+      "main": [
+        [
+          {
+            "node": "Prüfen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prüfen": {
+      "main": [
+        [
+          {
+            "node": "Angaben gültig?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Angaben gültig?": {
+      "main": [
+        [
+          {
+            "node": "Vorgang speichern",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fehler zurückgeben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vorgang speichern": {
+      "main": [
+        [
+          {
+            "node": "Team benachrichtigen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Team benachrichtigen": {
+      "main": [
+        [
+          {
+            "node": "Ergebnis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin",
+    "saveDataSuccessExecution": "none",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

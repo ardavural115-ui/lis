@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team-Inbox</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="inbox-page">
+  <header class="inbox-head">
+    <h1>Team-Inbox</h1>
+    <form class="login" id="login">
+      <input id="tenant" placeholder="Betrieb, z. B. praxis-demo" aria-label="Betrieb" required>
+      <input id="token" type="password" placeholder="Team-Zugang" aria-label="Team-Zugang" autocomplete="off" required>
+      <button type="submit">Öffnen</button>
+    </form>
+    <p class="error" id="error" role="alert"></p>
+  </header>
+  <main class="inbox" id="inbox" hidden>
+    <section class="list" aria-label="Vorgänge"><ol id="cases"></ol></section>
+    <section class="detail" id="detail" aria-live="polite"><p class="empty">Vorgang auswählen.</p></section>
+  </main>
+  <script type="module" src="inbox.js"></script>
+</body>
+</html>

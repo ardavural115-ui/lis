@@ -1,0 +1,234 @@
+{
+  "id": "LisPraxisDaily01",
+  "name": "Praxis – Täglich: Übersicht und Löschfrist",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Jeden Werktag um 7:30\n**Oben:** E-Mail mit allen offenen Vorgängen (Status *neu*), dringende zuerst.\n\n**Unten:** Löschfrist. Vorgänge, die älter als die eingestellte Frist sind, werden gelöscht.\n\nE-Mail-Adressen und Frist im Knoten **Einstellungen**.",
+        "height": 220,
+        "width": 520,
+        "color": 6
+      },
+      "id": "87bd718b-c77a-47cb-8a03-3a367ff034ef",
+      "name": "Hinweis Täglich",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 7 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "97f9cbea-3476-4ba2-b8ab-3069f6f0e4a8",
+      "name": "Werktags 7:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "849031ea-a8f2-4b85-8d34-0e90b223c923",
+              "name": "team_email",
+              "value": "praxis@example.com",
+              "type": "string"
+            },
+            {
+              "id": "312bb780-bcb5-4997-8fb0-9bfcf782be71",
+              "name": "absender_email",
+              "value": "online-rezeption@example.com",
+              "type": "string"
+            },
+            {
+              "id": "748ac4cf-a535-4d4a-8f58-b85a5eddd4b2",
+              "name": "loeschfrist_tage",
+              "value": 30,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "ab5403dd-61cb-4277-93ab-c39e821ecde6",
+      "name": "Einstellungen",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Vorgaenge"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "status",
+              "condition": "eq",
+              "keyValue": "neu"
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "id": "52b75f0d-bb5f-4973-b8a8-28295d549340",
+      "name": "Offene Vorgänge holen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Kurze Übersicht der offenen Vorgänge, ohne Gesundheitsdaten.\nconst rows = $input.all().map((item) => item.json);\nconst zeit = (iso) =>\n  new Date(iso).toLocaleString('de-DE', { timeZone: 'Europe/Berlin', dateStyle: 'short', timeStyle: 'short' });\nconst sortiert = [...rows].sort(\n  (a, b) => Number(Boolean(b.dringend)) - Number(Boolean(a.dringend)) || String(a.createdAt).localeCompare(String(b.createdAt)),\n);\nconst dringend = rows.filter((r) => r.dringend).length;\n\nreturn [{\n  json: {\n    anzahl: rows.length,\n    betreff: 'Online-Rezeption: ' + rows.length + ' offene Vorgänge' + (dringend ? ', davon ' + dringend + ' dringend' : ''),\n    text: [\n      'Guten Morgen! Diese Vorgänge sind noch offen:',\n      '',\n      ...sortiert.map((r) => r.vorgangsnummer + ' · ' + r.anliegen + (r.dringend ? ' · DRINGEND' : '') + ' · ' + zeit(r.createdAt)),\n      '',\n      'Details in n8n unter Overview → Data tables → Vorgaenge.',\n      'Erledigte Vorgänge dort bitte auf Status \"erledigt\" setzen.',\n    ].join('\\n'),\n  },\n}];"
+      },
+      "id": "b5da2f82-8314-4616-8ced-1f93e82de104",
+      "name": "Übersicht bauen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Einstellungen').first().json.absender_email }}",
+        "toEmail": "={{ $('Einstellungen').first().json.team_email }}",
+        "subject": "={{ $json.betreff }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e6c3044f-5787-40b9-820b-e587913d0ecf",
+      "name": "Übersicht senden",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        900,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Vorgaenge"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "createdAt",
+              "condition": "lt",
+              "keyValue": "={{ $now.minus({ days: $json.loeschfrist_tage }).toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ee5a33c3-7df6-4c62-bca0-3adafca27b9f",
+      "name": "Alte Vorgänge löschen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        460,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Werktags 7:30": {
+      "main": [
+        [
+          {
+            "node": "Einstellungen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Einstellungen": {
+      "main": [
+        [
+          {
+            "node": "Offene Vorgänge holen",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alte Vorgänge löschen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Offene Vorgänge holen": {
+      "main": [
+        [
+          {
+            "node": "Übersicht bauen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Übersicht bauen": {
+      "main": [
+        [
+          {
+            "node": "Übersicht senden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin",
+    "saveDataSuccessExecution": "none"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
