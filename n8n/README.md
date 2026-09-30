@@ -40,6 +40,7 @@ Sie stellt keine Diagnosen und bewertet keine Beschwerden.
 
 1. **Importieren.** In n8n einen neuen Workflow anlegen, oben auf **⋯ → Import → From file** klicken, die Datei wählen und mit Strg+S speichern.
    Das für alle vier Dateien wiederholen, jede in einen eigenen neuen Workflow.
+   Ohne Herunterladen geht es mit **⋯ → Import → From URL** und dem Raw-Link der Datei auf GitHub.
 2. **Tabelle anlegen.** Den Workflow „Praxis – Einrichtung“ öffnen und auf **Execute workflow** klicken.
    Die Tabelle erscheint unter **Overview → Data tables → Vorgaenge**.
 3. **Zugangsdaten.**
@@ -60,6 +61,35 @@ Sie stellt keine Diagnosen und bewertet keine Beschwerden.
    „Ich brauche ein Folgerezept“, dann den Anweisungen folgen. „Daten löschen“ und ein Satz mit „Brustschmerzen“ testen die Wächter.
 
 Dieselben Schritte stehen als gelber Zettel auch direkt im Workflow „Praxis – Online-Rezeption“.
+
+## Einrichtung über die n8n-API
+
+Schneller, besonders für weitere Praxen: `einrichten.mjs` legt die Tabelle und die vier Workflows über die n8n-API an
+und trägt die Baustein-ID selbst ein. Gibt es in n8n schon Zugangsdaten für Claude und SMTP, verbindet das Skript sie mit den Knoten
+und veröffentlicht die Workflows. Jede Installation bekommt eine eigene Chat-Adresse.
+
+1. In n8n unter **Credentials** die Zugangsdaten für Claude (Anthropic) und SMTP anlegen.
+2. **Settings → n8n API → Create an API key**. Bei n8n Cloud gibt es die API erst nach der Testphase.
+3. Optional die Praxisdaten in eine Datei `praxis.json` schreiben:
+   ```json
+   {
+     "praxis_name": "Hausarztpraxis Dr. Muster",
+     "praxis_adresse": "Hauptstraße 5, 93047 Regensburg",
+     "praxis_telefon": "0941 123456",
+     "sprechzeiten": "Mo bis Fr 8 bis 12 Uhr",
+     "weitere_infos": "Barrierefreier Zugang.",
+     "team_email": "team@praxis-muster.de",
+     "absender_email": "rezeption@praxis-muster.de",
+     "loeschfrist_tage": 30
+   }
+   ```
+4. Mit Node.js 22 oder neuer starten:
+   ```bash
+   N8N_URL=https://deinname.app.n8n.cloud N8N_API_KEY=… node n8n/einrichten.mjs praxis.json
+   ```
+
+Das Skript legt nichts doppelt an: Gibt es Workflows mit denselben Namen schon, bricht es ab.
+Den API-Schlüssel danach in n8n wieder löschen.
 
 ## Chat auf der Website
 
@@ -126,6 +156,7 @@ Antwort des Bausteins: `ok`, `vorgangsnummer` und `nachricht`, oder `ok: false` 
 In n8n 2.41.4 mit Chromium:
 
 - Import aller vier Dateien über **Import → From file** in eine leere Installation, dann die Schritte oben.
+- `einrichten.mjs` gegen eine leere Installation: Tabelle, Workflows, Praxisdaten, Baustein-ID, Zugangsdaten und Veröffentlichen, danach Chat und Team-Mail.
 - Vorgang anlegen mit Team-Mail. Ein ungültiges Geburtsdatum (31.02.) wird abgelehnt und die KI bekommt den Hinweis.
 - Notfall-Antwort und dringender Vorgang. Die Antwort kommt auch dann, wenn das Speichern scheitert.
 - „Daten löschen“ entfernt die Vorgänge und den Gesprächsverlauf.
