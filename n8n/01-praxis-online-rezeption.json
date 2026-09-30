@@ -1,0 +1,819 @@
+{
+  "id": "LisPraxisChat001",
+  "name": "Praxis – Online-Rezeption",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Einrichtung nach dem Import\n1. Auch **Baustein – Vorgang anlegen** importieren und **Praxis – Einrichtung** einmal ausführen.\n2. Knoten **Claude**: Zugangsdaten auswählen oder anlegen.\n3. Baustein öffnen und seine ID aus der Adresszeile kopieren: …/workflow/**ID**\n4. Knoten **Praxis-Einstellungen**: die ID bei *baustein_id* einfügen, dazu Name, Adresse, Telefon und Sprechzeiten.\n5. Baustein und diesen Workflow mit **Publish** veröffentlichen.",
+        "height": 300,
+        "width": 460,
+        "color": 1
+      },
+      "id": "18de69e1-7ef1-4a6b-b479-e475bd7b2b35",
+      "name": "Einrichtung",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Kanal: Chat auf der Website\nDer Chat ist öffentlich erreichbar, sobald der Workflow veröffentlicht ist. Link und Einbettung: Knoten **Chat** öffnen.\n\nPraxisdaten (Name, Adresse, Sprechzeiten) stehen im Knoten **Praxis-Einstellungen**.",
+        "height": 400,
+        "width": 460,
+        "color": 5
+      },
+      "id": "2e1fe5c9-0bcc-402f-be43-3910816b9354",
+      "name": "Hinweis Kanal",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Wächter (ohne KI)\n**Daten löschen**: löscht Gesprächsverlauf und Vorgänge dieser Sitzung.\n\n**Notfall**: Bei Wörtern wie „Brustschmerzen“ oder „keine Luft“ kommen sofort 112, 116 117 und Telefonseelsorge, und ein dringender Vorgang geht ans Team. Das hängt nicht von der KI ab.",
+        "height": 740,
+        "width": 720,
+        "color": 3
+      },
+      "id": "a19a1fed-1225-4ebd-a104-37176f4b2fce",
+      "name": "Hinweis Wächter",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -940
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. KI-Rezeption (Claude)\nFragt die Angaben ab, fasst zusammen und legt nach Bestätigung über den Baustein **vorgang_anlegen** einen Vorgang an. Keine Diagnosen, keine Zusagen.\n\nFällt die KI aus, bekommt der Patient die Praxisnummer.",
+        "height": 520,
+        "width": 720,
+        "color": 4
+      },
+      "id": "66072886-9bb5-4ef0-b204-4a67ecd8ef05",
+      "name": "Hinweis KI",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "hostedChat",
+        "authentication": "none",
+        "initialMessages": "Guten Tag! Ich bin die digitale Rezeption der Praxis, eine KI.\nIch nehme Ihr Anliegen auf und gebe es an das Praxisteam weiter: Rezept, Termin, Überweisung, Krankschreibung, Befund oder eine Frage. Bei einem Notfall rufen Sie bitte sofort die 112.",
+        "options": {
+          "title": "Online-Rezeption",
+          "subtitle": "Rund um die Uhr erreichbar. Mit „Daten löschen“ entfernen Sie Ihren Verlauf.",
+          "inputPlaceholder": "Ihre Nachricht …",
+          "allowedOrigins": "*",
+          "loadPreviousSession": "notSupported",
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "525a245f-3345-4360-bfd9-968566a41f13",
+      "name": "Chat",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "c256dc1d-c41b-47ca-9603-df2dfb7b0f9a"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a033046-943e-4a8d-b18f-4c9fbdee268b",
+              "name": "praxis_name",
+              "value": "Hausarztpraxis Dr. Beispiel",
+              "type": "string"
+            },
+            {
+              "id": "eac81690-7e76-42b9-ad87-81e2f6ed4e77",
+              "name": "praxis_adresse",
+              "value": "Beispielstraße 1, 12345 Musterstadt",
+              "type": "string"
+            },
+            {
+              "id": "712ec44e-51c5-4b22-8dc8-5aa268a1f74a",
+              "name": "praxis_telefon",
+              "value": "0123 456789",
+              "type": "string"
+            },
+            {
+              "id": "7e787c76-a50b-4a8f-add2-84b8fda9f905",
+              "name": "sprechzeiten",
+              "value": "Mo bis Fr 8 bis 12 Uhr sowie Mo, Di und Do 15 bis 18 Uhr",
+              "type": "string"
+            },
+            {
+              "id": "c53dfcb4-dc63-4ca9-b74b-e065d60f8e62",
+              "name": "weitere_infos",
+              "value": "Neue Patientinnen und Patienten sind willkommen. Parkplätze im Hof, barrierefreier Zugang.",
+              "type": "string"
+            },
+            {
+              "id": "4c688e70-6875-4da4-89c0-e238213d3eef",
+              "name": "baustein_id",
+              "value": "HIER_ID_DES_BAUSTEINS_EINTRAGEN",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "b06c59b8-ea03-4082-a2c1-04c5c52191f5",
+      "name": "Praxis-Einstellungen",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c482b366-1f5c-440d-bdd3-7bd78b2193d8",
+                    "leftValue": "={{ $json.chatInput.trim().toLowerCase() }}",
+                    "rightValue": "^daten\\s+l(ö|oe)schen[.!]?$",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Daten löschen"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7d45db90-0683-48f6-8270-d99e8a079482",
+                    "leftValue": "={{ $json.chatInput.toLowerCase() }}",
+                    "rightValue": "(notfall|notarzt|brustschmerz|atemnot|keine luft|bewusstlos|ohnmacht|starke blutung|blutet stark|schlaganfall|herzinfarkt|lähmung|laehmung|krampfanfall|suizid|selbstmord|umbringen|nicht mehr leben)",
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Notfall"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Normal"
+        }
+      },
+      "id": "38d12734-729c-4ef6-bdae-7747482470ee",
+      "name": "Befehl oder Notfall?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        460,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "row",
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Vorgaenge"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sessionId",
+              "condition": "eq",
+              "keyValue": "={{ $('Chat').first().json.sessionId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "34f4b00a-8229-40c5-9b70-0e26497a60a6",
+      "name": "Vorgänge löschen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        720,
+        -760
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "delete",
+        "deleteMode": "all"
+      },
+      "id": "d8773898-8141-41cd-af80-3d0eb6401375",
+      "name": "Chatverlauf löschen",
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        940,
+        -760
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Chat').first().json.sessionId }}",
+        "contextWindowLength": 20
+      },
+      "id": "d299b918-fbf6-4fec-a41f-4154d8b445d2",
+      "name": "Gedächtnis (Löschen)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        1020,
+        -580
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "87adb22f-6d87-42bf-a93f-37b61359d7a2",
+              "name": "output",
+              "value": "Ihre Daten wurden gelöscht: Der Gesprächsverlauf und Ihre Anfragen in dieser Online-Rezeption sind entfernt.",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "abe0a934-92f2-4982-989d-c763225af2b5",
+      "name": "Antwort: gelöscht",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1240,
+        -760
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Praxis-Einstellungen').first().json.baustein_id }}"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "anliegen": "Notfall",
+            "name": "",
+            "geburtsdatum": "",
+            "telefon": "",
+            "details": "={{ $json.chatInput }}",
+            "zusammenfassung": "Möglicher Notfall laut Chat-Nachricht. Bitte sofort ansehen.",
+            "dringend": true,
+            "sessionId": "={{ $json.sessionId }}",
+            "kanal": "chat"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "anliegen",
+              "displayName": "anliegen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "geburtsdatum",
+              "displayName": "geburtsdatum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefon",
+              "displayName": "telefon",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "zusammenfassung",
+              "displayName": "zusammenfassung",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "dringend",
+              "displayName": "dringend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "kanal",
+              "displayName": "kanal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "3315b4ad-a4c9-4db3-ae52-590d60178283",
+      "name": "Notfall melden",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        -360
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2b9c0f2b-0564-4a46-905c-d6a14273b1cd",
+              "name": "output",
+              "value": "=Wichtig: Bei akuter Lebensgefahr rufen Sie bitte sofort die 112 an. Den ärztlichen Bereitschaftsdienst erreichen Sie unter 116 117. In seelischen Krisen hilft die Telefonseelsorge rund um die Uhr: 0800 111 0 111.{{ $json.ok === true ? ' Ihre Nachricht ist als dringend an das Praxisteam gegangen.' : ' Bitte rufen Sie zusätzlich direkt in der Praxis an: ' + $('Praxis-Einstellungen').first().json.praxis_telefon + '.' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "e7864645-3261-4d70-a927-19cdf65c5483",
+      "name": "Antwort: Notfall",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        940,
+        -360
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=Du bist die digitale Online-Rezeption der {{ $json.praxis_name }}. Du bist eine KI und sagst das offen, wenn jemand fragt.\n\nDeine Aufgabe: Anliegen von Patientinnen und Patienten aufnehmen und als Vorgang an das Praxisteam übergeben, so wie eine gute Rezeption am Telefon, nur schriftlich.\n\nGrenzen:\n- Du stellst keine Diagnosen, gibst keine medizinischen Ratschläge und bewertest keine Beschwerden. Bei medizinischen Fragen sagst du freundlich, dass das Praxisteam das klärt, und nimmst die Frage als Vorgang auf.\n- Bei Anzeichen eines Notfalls weist du sofort auf die 112 hin (ärztlicher Bereitschaftsdienst: 116 117) und fragst nichts weiter ab.\n- Du versprichst keine Termine, Rezepte, Überweisungen oder Krankschreibungen. Das entscheidet die Praxis.\n- Befunde besprichst du nicht im Chat.\n\nAblauf:\n1. Kläre das Anliegen: Rezept, Termin, Überweisung, Krankschreibung, Befund oder Frage.\n2. Allgemeine Fragen (z. B. Sprechzeiten, Adresse) beantwortest du nur mit den Praxisinfos unten. Steht die Antwort dort nicht, nimmst du die Frage als Vorgang \"Frage\" auf.\n3. Frage die Angaben nacheinander ab, immer nur eine Frage pro Nachricht. Was schon genannt wurde, fragst du nicht noch einmal.\n   - Immer: vollständiger Name, Geburtsdatum (TT.MM.JJJJ), Telefonnummer für Rückfragen.\n   - Rezept: Medikament mit Stärke, Versicherung (gesetzlich oder privat), E-Rezept auf die Karte oder Papierrezept.\n   - Termin: Grund (z. B. Vorsorge, Kontrolle, Impfung), schon einmal in Behandlung (ja/nein), Wunschzeiten, Versicherung.\n   - Überweisung: Fachrichtung, Versicherung, auf Wunsch der Anlass.\n   - Krankschreibung: seit wann, kurze Beschreibung der Beschwerden, Versicherung.\n   - Befund: um welchen Befund oder welche Unterlagen es geht.\n   - Frage: die Frage selbst.\n4. Fasse alle Angaben kurz zusammen und frage, ob alles stimmt.\n5. Erst nach der Bestätigung rufst du das Werkzeug \"vorgang_anlegen\" auf. Meldet es einen Fehler, fragst du genau die genannte Angabe noch einmal ab.\n6. Danach nennst du die Vorgangsnummer und sagst, dass sich das Praxisteam unter der angegebenen Telefonnummer meldet.\n\nStil: freundlich, kurz, auf Deutsch, in der Sie-Form.\n\nPraxisinfos:\n- Name: {{ $json.praxis_name }}\n- Adresse: {{ $json.praxis_adresse }}\n- Telefon: {{ $json.praxis_telefon }}\n- Sprechzeiten: {{ $json.sprechzeiten }}\n- Weitere Infos: {{ $json.weitere_infos }}",
+          "maxIterations": 10
+        }
+      },
+      "id": "7c31560d-3a20-4774-bec3-38a99d9c25b0",
+      "name": "KI-Rezeption",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        720,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-opus-5-5",
+          "cachedResultName": "Claude Opus 5.5"
+        },
+        "options": {}
+      },
+      "id": "fb66792f-6038-4aac-a02b-a60a5a1836bb",
+      "name": "Claude",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.6,
+      "position": [
+        700,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Chat').first().json.sessionId }}",
+        "contextWindowLength": 20
+      },
+      "id": "f645bb2b-5dce-4781-9d8d-9f8f81790ab6",
+      "name": "Gedächtnis",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        860,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "description": "Legt einen Vorgang für das Praxisteam an. Nur aufrufen, wenn alle Angaben vorliegen und die Person die Zusammenfassung bestätigt hat. Antwortet mit der Vorgangsnummer oder mit einem Hinweis, welche Angabe fehlt.",
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Praxis-Einstellungen').first().json.baustein_id }}"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "anliegen": "={{ $fromAI('anliegen', `Art des Anliegens, genau eines von: Rezept, Termin, Überweisung, Krankschreibung, Befund, Frage`, 'string') }}",
+            "name": "={{ $fromAI('name', `Vollständiger Name (Vor- und Nachname)`, 'string') }}",
+            "geburtsdatum": "={{ $fromAI('geburtsdatum', `Geburtsdatum im Format TT.MM.JJJJ`, 'string') }}",
+            "telefon": "={{ $fromAI('telefon', `Telefonnummer für Rückfragen`, 'string') }}",
+            "details": "={{ $fromAI('details', `Alle weiteren Angaben zum Anliegen als kurze Stichpunkte, z. B. Medikament und Stärke, Versicherung, Wunschzeiten`, 'string') }}",
+            "zusammenfassung": "={{ $fromAI('zusammenfassung', `Zusammenfassung für das Praxisteam in höchstens zwei Sätzen, ohne eigene Bewertung`, 'string') }}",
+            "dringend": false,
+            "sessionId": "={{ $('Chat').first().json.sessionId }}",
+            "kanal": "chat"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "anliegen",
+              "displayName": "anliegen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "geburtsdatum",
+              "displayName": "geburtsdatum",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefon",
+              "displayName": "telefon",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "details",
+              "displayName": "details",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "zusammenfassung",
+              "displayName": "zusammenfassung",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "dringend",
+              "displayName": "dringend",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "boolean",
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "kanal",
+              "displayName": "kanal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "id": "ac32711a-73f8-4a2d-a34c-986c8d3e8c1b",
+      "name": "vorgang_anlegen",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1020,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c8b96c40-a0e6-4bae-b057-6f38652c58b7",
+              "name": "output",
+              "value": "=Entschuldigung, gerade gibt es ein technisches Problem. Bitte rufen Sie uns an: {{ $('Praxis-Einstellungen').first().json.praxis_telefon }}. Bei einem Notfall wählen Sie die 112.",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "72694541-c825-4c26-ac2d-abc1cad20516",
+      "name": "Antwort: Störung",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1140,
+        40
+      ],
+      "executeOnce": true
+    }
+  ],
+  "connections": {
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Praxis-Einstellungen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Praxis-Einstellungen": {
+      "main": [
+        [
+          {
+            "node": "Befehl oder Notfall?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Befehl oder Notfall?": {
+      "main": [
+        [
+          {
+            "node": "Vorgänge löschen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notfall melden",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "KI-Rezeption",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vorgänge löschen": {
+      "main": [
+        [
+          {
+            "node": "Chatverlauf löschen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gedächtnis (Löschen)": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chatverlauf löschen",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatverlauf löschen": {
+      "main": [
+        [
+          {
+            "node": "Antwort: gelöscht",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notfall melden": {
+      "main": [
+        [
+          {
+            "node": "Antwort: Notfall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "KI-Rezeption",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gedächtnis": {
+      "ai_memory": [
+        [
+          {
+            "node": "KI-Rezeption",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "vorgang_anlegen": {
+      "ai_tool": [
+        [
+          {
+            "node": "KI-Rezeption",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "KI-Rezeption": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Antwort: Störung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

@@ -1,0 +1,122 @@
+{
+  "id": "LisPraxisSetup01",
+  "name": "Praxis – Einrichtung (einmal ausführen)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Einrichtung\nEinmal auf **Execute workflow** klicken. Das legt die Tabelle **Vorgaenge** an (unter *Overview → Data tables*). Gibt es sie schon, passiert nichts.",
+        "height": 160,
+        "width": 520,
+        "color": 7
+      },
+      "id": "6bf5840c-83be-4fe9-902c-e2d12a009b4c",
+      "name": "Hinweis Einrichtung",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "9bcf1c2e-315e-4469-9a39-ff111c322538",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "Vorgaenge",
+        "columns": {
+          "column": [
+            {
+              "name": "vorgangsnummer",
+              "type": "string"
+            },
+            {
+              "name": "anliegen",
+              "type": "string"
+            },
+            {
+              "name": "status",
+              "type": "string"
+            },
+            {
+              "name": "dringend",
+              "type": "boolean"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "geburtsdatum",
+              "type": "string"
+            },
+            {
+              "name": "telefon",
+              "type": "string"
+            },
+            {
+              "name": "details",
+              "type": "string"
+            },
+            {
+              "name": "zusammenfassung",
+              "type": "string"
+            },
+            {
+              "name": "sessionId",
+              "type": "string"
+            },
+            {
+              "name": "kanal",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "05e6be11-308a-49da-bcb7-f269e8bcd13e",
+      "name": "Tabelle Vorgaenge anlegen",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Tabelle Vorgaenge anlegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Berlin"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
