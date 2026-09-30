@@ -1,0 +1,23 @@
+{
+  "name": "lis-plattform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Baustein-Plattform für Workflows: Arztpraxis, Freelancer, Mittelstand",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node src/main.ts",
+    "dev": "node --watch src/main.ts",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.129.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "^7.0.2"
+  }
+}

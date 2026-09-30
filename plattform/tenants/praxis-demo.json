@@ -1,0 +1,34 @@
+{
+  "id": "praxis-demo",
+  "name": "Hausarztpraxis Dr. Beispiel",
+  "industry": "arztpraxis",
+  "retentionDays": 30,
+  "greeting": "Guten Tag! Ich bin der digitale Assistent der {betrieb}, eine KI. Ich nehme Ihr Anliegen auf und gebe es an unser Praxisteam weiter. Wie kann ich helfen?",
+  "info": {
+    "rufnummer": "0123 456789",
+    "adresse": "Beispielstraße 1, 12345 Musterstadt",
+    "oeffnungszeiten": "Mo bis Fr 8 bis 12 Uhr sowie Mo, Di und Do 15 bis 18 Uhr"
+  },
+  "faq": [
+    {
+      "question": "Wann hat die Praxis geöffnet?",
+      "answer": "Unsere Sprechzeiten: {oeffnungszeiten}.",
+      "keywords": ["öffnungszeit", "geöffnet", "sprechzeit"]
+    },
+    {
+      "question": "Wo ist die Praxis?",
+      "answer": "Sie finden uns in der {adresse}.",
+      "keywords": ["adresse", "anfahrt", "wo finde", "wo ist", "parken"]
+    },
+    {
+      "question": "Wie erreiche ich die Praxis telefonisch?",
+      "answer": "Telefonisch erreichen Sie uns während der Sprechzeiten unter {rufnummer}.",
+      "keywords": ["telefon", "anrufen", "rufnummer", "erreichen"]
+    },
+    {
+      "question": "Nehmen Sie neue Patientinnen und Patienten auf?",
+      "answer": "Ja, wir nehmen neue Patientinnen und Patienten auf. Wählen Sie dafür einfach „Termin anfragen“.",
+      "keywords": ["neue patient", "neupatient", "aufnehmen", "aufnahme"]
+    }
+  ]
+}

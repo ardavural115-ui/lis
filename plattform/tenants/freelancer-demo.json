@@ -1,0 +1,29 @@
+{
+  "id": "freelancer-demo",
+  "name": "Studio Beispiel (Webdesign & Entwicklung)",
+  "industry": "freelancer",
+  "retentionDays": 30,
+  "greeting": "Hallo! Ich bin der digitale Assistent von {betrieb}, eine KI. Erzählen Sie mir kurz, worum es geht, oder wählen Sie ein Thema.",
+  "info": {
+    "antwortzeit": "24 Stunden",
+    "buchungslink": "https://example.com/termin",
+    "kontaktmail": "hallo@example.com"
+  },
+  "faq": [
+    {
+      "question": "Was kostet eine Website?",
+      "answer": "Eine einfache Website beginnt bei etwa 1.500 €. Den genauen Preis nenne ich nach einem kurzen Erstgespräch.",
+      "keywords": ["kostet", "kosten", "preis", "stundensatz"]
+    },
+    {
+      "question": "Welche Leistungen bieten Sie an?",
+      "answer": "Webdesign, Websites mit WordPress oder als eigene Entwicklung, Onlineshops und Wartung.",
+      "keywords": ["leistungen", "angebot", "was machen", "bieten sie"]
+    },
+    {
+      "question": "Wie erreiche ich Sie?",
+      "answer": "Am besten per E-Mail an {kontaktmail}. Ich antworte innerhalb von {antwortzeit}.",
+      "keywords": ["erreichbar", "erreichen", "kontakt", "e-mail"]
+    }
+  ]
+}

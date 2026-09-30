@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <main class="chat">
+    <header class="chat-head">
+      <div>
+        <h1 id="tenant-name">Chat</h1>
+        <p class="hint" id="ai-hint">Sie schreiben mit einem KI-Assistenten.</p>
+      </div>
+      <nav class="demo-switch" aria-label="Demo-Betriebe">
+        <a href="?tenant=praxis-demo">Arztpraxis</a>
+        <a href="?tenant=freelancer-demo">Freelancer</a>
+        <a href="?tenant=mittelstand-demo">Mittelstand</a>
+      </nav>
+    </header>
+    <ol class="messages" id="messages" aria-live="polite"></ol>
+    <div class="quick" id="quick"></div>
+    <form class="composer" id="composer">
+      <input id="text" autocomplete="off" maxlength="2000" placeholder="Nachricht schreiben …" aria-label="Nachricht">
+      <button type="submit">Senden</button>
+    </form>
+  </main>
+  <script type="module" src="widget.js"></script>
+</body>
+</html>

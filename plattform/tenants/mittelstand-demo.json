@@ -1,0 +1,25 @@
+{
+  "id": "mittelstand-demo",
+  "name": "Beispiel Maschinenbau GmbH",
+  "industry": "mittelstand",
+  "retentionDays": 30,
+  "greeting": "Willkommen bei der {betrieb}! Ich bin der digitale Assistent, eine KI. Wie kann ich Ihnen helfen?",
+  "info": {
+    "rufnummer": "0123 987650",
+    "servicezeiten": "Mo bis Fr 7 bis 17 Uhr",
+    "adresse": "Industriestraße 5, 12345 Musterstadt",
+    "bewerbungsmail": "karriere@example.com"
+  },
+  "faq": [
+    {
+      "question": "Wann ist der Kundenservice erreichbar?",
+      "answer": "Unser Kundenservice ist {servicezeiten} unter {rufnummer} erreichbar.",
+      "keywords": ["servicezeit", "öffnungszeit", "erreichbar", "geöffnet"]
+    },
+    {
+      "question": "Wo finde ich Sie?",
+      "answer": "Sie finden uns in der {adresse}.",
+      "keywords": ["adresse", "anfahrt", "wo finde", "wo ist"]
+    }
+  ]
+}
